@@ -4,6 +4,7 @@ import { json } from "body-parser";
 import mongoose from "mongoose";
 import cookieSession from "cookie-session";
 import cors from "cors";
+import dotenv from "dotenv";
 
 import { currentUserRouter } from "./routes/current-user";
 import { signinRouter } from "./routes/signin";
@@ -20,6 +21,7 @@ const corsOptions ={
   optionSuccessStatus:200
 }
 app.use(cors(corsOptions));
+dotenv.config();
 
 app.set('trust proxy', true);
 app.use(json());
@@ -42,19 +44,19 @@ app.all("*", async (req, res) => {
 app.use(errorHandler);
 
 const start = async () => {
-  if (!"process.env.JWT_KEY") {
+  if (!process.env.JWT_KEY) {
     throw new Error("JWT_KEY must be defined");
   }
 
   try {
-    await mongoose.connect("mongodb://localhost:27017/mapi", {});
+    await mongoose.connect(""+process.env.DATABASE_URL, {});
     console.log("Connected to MongoDb");
   } catch (err) {
     console.error(err);
   }
 
-  app.listen(3001, () => {
-    console.log("Listening on port 3001!!!!!!!!");
+  app.listen(process.env.PORT, () => {
+    console.log(`Listening on port ${process.env.PORT}!!!!!!!!`);
   });
 };
 
